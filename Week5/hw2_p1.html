@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Table of data</title>
+    <script src="libs/d3/d3.min.js"></script>
+
+</head>
+<body>
+    <div style="width: 80%; margin:auto; ">
+        <table border="1">
+            <thead style="align-content: center">
+                <tr>
+                    <th>Date</th>
+                    <th>Estimated Cost</th>
+                    <th>Raw Material</th>
+                    <th>Workmanship</th>
+                    <th>Yearly Storage</th>
+                    <th>Actual Cost</th>
+                    <th>Sold Price</th>
+                    <th>Margin of Profit</th>
+                </tr>
+            </thead>
+            <tbody style="text-align: center;"></tbody>
+        </table>
+    </div>
+
+<script>
+    d3.csv("https://raw.githubusercontent.com/umassdgithub/Week-5-Part-2/main/Exercise/data_sample.csv").then(function(table) {
+        var tbody = d3.select("tbody");
+        table.forEach(function(data) {
+            var date = new Date(data.date);
+            var estimatedCost = parseFloat(data.EstimatedCost.slice(1));
+            var rawMaterial = parseFloat(data.RawMaterial.slice(1));
+            var workmanship = parseFloat(data.Workmanship.slice(1));
+            var yearlyStorage = parseFloat(data.YearlyStorage.slice(1));
+            var actualCost = (rawMaterial + workmanship + yearlyStorage);
+            var soldPrice = (estimatedCost * 1.1);
+            var marginOfProfit = (soldPrice - actualCost);
+            tbody.append("tr").html(`
+                <td>${data.date}</td>
+                <td>${data.EstimatedCost}</td>
+                <td>${data.RawMaterial}</td>
+                <td>${data.Workmanship}</td>
+                <td>${data.YearlyStorage}</td>
+                <td>${actualCost}</td>
+                <td>${soldPrice.toFixed(2)}</td>
+                <td>${marginOfProfit.toFixed(2)}</td>
+            `);
+        });
+    });
+</script>
+</body>
+</html>
