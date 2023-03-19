@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Multi line chart</title>
+    <style>
+        svg{
+            width: 80vw;
+            height: 60vh;
+            background-color: #f5f5f5;
+            margin: 10vw;
+        }
+        .axis text{
+            font-family: sans-serif;
+            font-weight: bold;
+            font-size: 40pt;
+        }
+        
+        .RawMaterial{
+            stroke-width: .5px;
+            stroke: blue;
+            fill:none;
+        }
+        .Workmanship{
+            stroke-width: .5px;
+            stroke: red;
+            fill:none;
+        }
+
+        .YearlyStorage{
+            stroke-width: 2px;
+            stroke: green;
+            fill:none;
+        }
+.LegendYearlyStorage{
+    fill:green;
+}
+.LegendWorkmanship
+{
+    fill:red;
+}
+.LegendRawMaterial
+{
+    fill:blue;
+}
+
+
+    </style>
+    <script src="libs/d3/d3.js"></script>
+
+</head>
+<body>
+    
+    <div id="graph" width="100%">
+        <svg id="main" width="100%" height="100%" viewBox="0 0 1000 800">
+        </svg>
+    </div>
+<script>
+    const margins = {
+        top: 30,
+        bottom: 40,
+        left: 60,
+        right:30
+    }
+    const color = d3.scaleOrdinal(d3.schemeCategory10)
+    const svg=d3.select("body").select("div").select("svg")
+    
+    d3.csv("https://raw.githubusercontent.com/umassdgithub/Week-5-Part-2/main/Exercise/data_sample.csv",d=>{
+        return{
+            date: new Date(d.date),
+            RawMaterial: Number(d.RawMaterial),
+            Workmanship: Number(d.Workmanship),
+            YearlyStorage: Number(d.YearlyStorage),
+        }
+    }).then(data=>{
+
+        
+        const date_min_max = d3.extent(data,d=>d.date)
+        const yMin = d3.min(data,d=>d.Workmanship)
+        const yMax = d3.max(data,d=>d.RawMaterial)
+        const yRange = [yMin,yMax];
+        const xScale = d3.scaleTime()
+            .domain(date_min_max)
+            .range([margins.left,1000]);
+        const yScale = d3.scaleLinear()
+            .domain(yRange)
+            .range([800-margins.bottom,margins.top]);
+        const xAxis = d3.axisBottom().scale(xScale);
+        const yAxis = d3.axisLeft().scale(yScale);
+
+        svg.append('g')
+            .attr("class","xaxis")
+            .attr("transform",`translate(0,${800-margins.bottom})`)
+            .call(xAxis.tickFormat(d3.timeFormat("%b")))
+            .selectAll("text");
+        svg.append('g')
+            .attr("class","yaxis")
+            .attr("transform",`translate(${margins.left},0)`)
+            .call(yAxis)
+        
+        const LineRawMaterial = d3.line()
+            .x(d=>xScale(d.date))
+            .y(d=>yScale(d.RawMaterial))
+            .curve(d3.curveBasis)
+        const LineWorkmanship = d3.line()
+            .x(d=>xScale(d.date))
+            .y(d=>yScale(d.Workmanship))
+            .curve(d3.curveBasis)
+        const LineYearlyStorage = d3.line()
+            .x(d=>xScale(d.date))
+            .y(d=>yScale(d.YearlyStorage))
+            .curve(d3.curveBasis)
+
+        const lineRawMaterial = svg.append('g')
+            .attr("class","RawMaterial");
+        lineRawMaterial
+            .selectAll('lines')
+            .data([data])
+            .enter()
+            .append("path")
+            .attr("d",d=>LineRawMaterial(d))
+        
+        const lineWorkmanship = svg.append('g')
+            .attr("class","Workmanship");
+        lineWorkmanship
+            .selectAll('lines')
+            .data([data])
+            .enter()
+            .append("path")
+            .attr("d",d=>LineWorkmanship(d))
+
+        const lineYearlyStorage = svg.append('g')
+            .attr("class","YearlyStorage");
+        lineYearlyStorage
+            .selectAll('lines')
+            .data([data])
+            .enter()
+            .append("path")
+            .attr("d",d=>LineYearlyStorage(d))
+    })
+    
+    
+    
+        
+</script>
+</body>
+</html>
